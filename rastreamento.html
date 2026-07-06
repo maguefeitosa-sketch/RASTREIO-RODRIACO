@@ -219,9 +219,13 @@ function renderDetalhe(p){
   const sr=document.getElementById('stepsRow');sr.innerHTML='';
   SL.forEach((lbl,i)=>{const done=i<si.s,active=i===si.s;const d=document.createElement('div');d.className='st'+(done?' done':active?' active':'');d.innerHTML=`<div class="st-box">${done?'✓':SI[i]}</div><div class="st-lbl">${lbl.replace('\n','<br>')}</div>`;sr.appendChild(d);});
   const ge=document.getElementById('gridEntrega');ge.innerHTML='';
-  [{label:'Localização Atual',key:'localizacao atual',accent:true},{label:'Previsão de Chegada',key:'previsao de entrega'},{label:'Recebido por',key:'recebido por'},{label:'Nota Fiscal',key:'nota fiscal',linkKey:'link nf'}]
+  [{label:'Localização Atual',key:'localizacao atual',accent:true},{label:'Previsão de Chegada',key:'previsao de entrega',formatDate:true},{label:'Recebido por',key:'recebido por'},{label:'Nota Fiscal',key:'nota fiscal',linkKey:'link nf'}]
     .forEach(c=>{
-      const val=pn[c.key]||pn[c.key.replace(/ /g,'_')]||'';
+      let val=pn[c.key]||pn[c.key.replace(/ /g,'_')]||'';
+      // Corrige formato longo de data do Google Sheets
+      if(c.formatDate && val && (val.includes('GMT') || val.includes('00:00:00'))) {
+        try { const d=new Date(val); if(!isNaN(d)) val=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); } catch(e){}
+      }
       if(val&&val.trim()&&val!=='0'){
         const linkVal=c.linkKey?(pn[c.linkKey]||pn[(c.linkKey||'').replace(/ /g,'_')]||''):'';
         const btnNF=linkVal?`<a href="${linkVal}" target="_blank" class="btn-nf">📄 Abrir NF</a>`:'';
